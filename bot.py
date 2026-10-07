@@ -803,9 +803,11 @@ async def _automation_handler(uid, event):
         log.warning("automation handler %s: %s", uid, e)
 
 async def _self_panel_trigger(uid, event):
-    """وقتی خود اکانت سلف در یک پیوی «پنل» می‌فرستد، مسیر امن باز کردن پنل بات را نشان می‌دهد.
-    پنل کامل Bot API فقط داخل چت خود بات قابل نمایش است؛ تلگرام اجازه نمی‌دهد بات
-    داخل پیوی دو کاربر پیام/کیبورد Bot API ارسال کند.
+    """میانبر «پنل» از اکانت سلف.
+
+    نمایش پنل واقعی باید توسط Bot API انجام شود؛ بنابراین این هندلر دیگر
+    پیام واسطه/لینک جعلی نمی‌فرستد و فقط اجازه می‌دهد هندلر Bot API در چت بات
+    پیام پنل را مستقیم باز کند. در چت‌های دیگر هم پاسخ گمراه‌کننده ارسال نمی‌شود.
     """
     try:
         text_in = (event.raw_text or "").strip()
@@ -813,23 +815,15 @@ async def _self_panel_trigger(uid, event):
             return
         if not event.is_private:
             return
-        async with Session() as s:
-            u = await get_user(s, uid)
-            if not u or not u.self_enabled:
-                return
-        if not BOT_USERNAME:
+        # اگر پیام به خود بات ارسال شده، Bot API آن را مستقیم به پنل تبدیل می‌کند.
+        # هیچ پیام واسطه‌ای از طرف اکانت سلف ارسال نکن.
+        if BOT_ID and int(event.chat_id or 0) == BOT_ID:
             return
-        try:
-            await event.delete()
-        except Exception:
-            pass
-        await event.client.send_message(
-            event.chat_id,
-            "🎛 <b>پنل مدیریت سلف</b>\n\nبرای باز کردن پنل کامل، روی دکمه زیر بزن:",
-            buttons=[[Button.url("🎛 باز کردن پنل مدیریت", f"https://t.me/{BOT_USERNAME}")]],
-        )
+        # در چت‌های دیگر، Bot API لزوماً عضو چت نیست و نمی‌تواند پنل را نمایش دهد؛
+        # پس هیچ پیام اشتباه یا لینک بازکننده‌ای ارسال نمی‌کنیم.
+        return
     except Exception as e:
-        log.warning("self panel trigger %s: %s", uid, e)
+        log.debug("self panel trigger ignored for %s: %s", uid, e)
 
 async def automation_loop(uid):
     """یک کلاینت پایدار برای دریافت پیام‌های ورودی سلف نگه می‌دارد."""
