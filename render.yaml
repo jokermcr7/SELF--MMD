@@ -1,0 +1,18 @@
+services:
+  - type: worker
+    name: mmd-self
+    runtime: docker
+    plan: starter
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: OWNER_ID
+        sync: false
+      - key: TG_API_ID
+        sync: false
+      - key: TG_API_HASH
+        sync: false
+      - key: SESSION_SECRET
+        sync: false
+      - key: DB_PATH
+        value: /data/mmd_self.db
