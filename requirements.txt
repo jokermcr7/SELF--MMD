@@ -5,3 +5,4 @@ aiosqlite>=0.21,<1
 aiohttp>=3.10,<4
 telethon>=1.42,<2
 cryptography>=44,<47
+greenlet>=3.1.1
