@@ -1,7 +1,0 @@
-aiogram>=3.22,<4
-SQLAlchemy[asyncio]>=2.0,<3
-aiosqlite>=0.21,<1
-asyncpg>=0.30,<1
-greenlet>=3.0,<4
-telethon>=1.42,<2
-cryptography>=44,<47
